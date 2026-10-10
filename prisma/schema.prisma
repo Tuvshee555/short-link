@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Pooled Neon string (host contains "-pooler") — used by the running app.
+  url       = env("DATABASE_URL")
+  // Direct string — used by `prisma migrate` only (migrations need a real session).
+  directUrl = env("DIRECT_URL")
+}
+
+/// One short link: `<base>/<alias>` -> `destination`.
+model Link {
+  id          String   @id @default(cuid())
+  /// Always stored lowercase. Format + length are also enforced by CHECK
+  /// constraints in the migration, so a bad row cannot get in via raw SQL either.
+  alias       String   @unique
+  /// The exact URL the owner pasted (trimmed). Re-parsed on every redirect.
+  destination String
+  /// Incremented with a single atomic UPDATE, never read-modify-write.
+  clicks      Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdAt(sort: Desc)])
+}
+
+/// Fixed-window counters for login / write throttling. Lives in Postgres rather
+/// than memory because serverless instances do not share memory. `key` is a
+/// salted hash — raw IP addresses are never stored.
+model RateLimit {
+  key         String   @id
+  count       Int
+  windowStart DateTime
+}

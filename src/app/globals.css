@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Navy is the Uudam Travel brand colour (#113e67); everything
+ * else is neutral so the one accent stays quiet.
+ */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
+  --color-canvas: #f8fafc;
+
+  --color-brand: #113e67;
+  --color-brand-hover: #0c2f4f;
+  --color-brand-soft: #eaf1f8;
+  --color-accent: #2563eb;
+
+  --color-danger: #b42318;
+  --color-danger-hover: #912018;
+  --color-danger-soft: #fef3f2;
+  --color-success: #067647;
+  --color-success-soft: #ecfdf3;
+  --color-warn: #93370d;
+  --color-warn-soft: #fffaeb;
+}
+
+/* In the base layer so utilities (e.g. `focus-visible:outline-none` on an input
+   whose wrapper draws the ring instead) can still override these defaults. */
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* One visible, high-contrast focus ring for every interactive element. */
+  :focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-accent) 60%, white);
+    outline-offset: 2px;
+  }
+}
+
+@keyframes sl-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

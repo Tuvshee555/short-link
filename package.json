@@ -1,0 +1,42 @@
+{
+  "name": "short-link",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal URL shortener for uudamtravel.mn — admin dashboard, root-level redirects, Neon Postgres.",
+  "scripts": {
+    "dev": "next dev -p 3600",
+    "build": "prisma generate && next build",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "postinstall": "prisma generate",
+    "db:migrate": "dotenv -e .env.local -- prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "dotenv -e .env.local -- prisma studio",
+    "db:deploy:local": "dotenv -e .env.local -- prisma migrate deploy",
+    "db:status": "dotenv -e .env.local -- prisma migrate status",
+    "e2e": "dotenv -e .env.local -- node scripts/e2e.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "lucide-react": "^0.475.0",
+    "next": "^16.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "^16.4.0",
+    "prisma": "^6.19.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5",
+    "vitest": "^3.2.7",
+    "dotenv-cli": "^8.0.0"
+  }
+}
