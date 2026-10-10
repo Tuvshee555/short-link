@@ -21,6 +21,9 @@ const BROWSER_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 const BOOKING =
   "https://www.booking.com/hotel/cn/inner-mongolia-grand-wangfujing.en-gb.html?aid=304142&label=gen173nr-1FCAEoggI46AdIM1gEaGyIAQGYAQm4ARfIAQzYAQHoAQH4AQKIAgGoAgO4AtTvq8gGwAIB0gIkNzQ4ZDQ&sid=abc123&checkin=2026-10-12&checkout=2026-10-14&group_adults=2&no_rooms=1&ss=Inner%20Mongolia%2C%20China&#hotelTmpl";
+// A remote host rewrites X-Forwarded-For with the real client IP, so the throw-away-IP trick used for
+// the lock-out tests only works locally. Remotely we use the real bucket and clear it between phases.
+const REMOTE = !/^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(BASE);
 const RUN = Math.random().toString(36).slice(2, 7);
 const P = `zz-e2e-${RUN}`;
 
@@ -252,10 +255,17 @@ async function main() {
   r = await login(PASSWORD, lockXff);
   check("even the RIGHT password is refused while locked out", r.status === 429, r.status);
   check("lock-out sends Retry-After", Number(r.headers.get("retry-after")) > 0);
-  r = await login(PASSWORD);
-  check("a different client can still sign in", r.status === 200);
+  if (REMOTE) {
+    await db.rateLimit.deleteMany({}); // remote: same bucket as us — clear it so the rest of the run is fair
+    r = await login(PASSWORD);
+    check("sign-in works again once the lock-out is cleared", r.status === 200, r.status);
+  } else {
+    r = await login(PASSWORD);
+    check("a different client can still sign in", r.status === 200);
+  }
 
-  const writeXff = `192.0.2.${Math.floor(Math.random() * 200) + 1}`;
+  if (REMOTE) await db.rateLimit.deleteMany({}); // start the flood in a fresh window
+  const writeXff = REMOTE ? undefined : `192.0.2.${Math.floor(Math.random() * 200) + 1}`;
   const writeStatuses = [];
   for (let i = 0; i < 62; i++) {
     writeStatuses.push((await http("/api/links", { method: "POST", cookie, xff: writeXff, json: {} })).status);

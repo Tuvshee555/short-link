@@ -6,6 +6,16 @@ Your own Bitly. Paste a long URL, choose an alias, and get `https://uudamtravel.
 https://uudamtravel.mn/hotel-booking  ──302──▶  https://www.booking.com/hotel/cn/…?aid=…&checkin=…
 ```
 
+## Current deployment
+
+| | |
+| --- | --- |
+| Dashboard | `https://short-link-ruddy.vercel.app/admin/login` |
+| Vercel project | `short-link` (team `tuvshinsaihans-projects`), auto-deploys on push to `main` |
+| Database | Neon project `ep-proud-shadow-b5p648j9` (`neondb`), schema applied by `prisma migrate deploy` at build |
+| Website hook | `uudam-booking-web` has `SHORTLINK_ORIGIN=https://short-link-ruddy.vercel.app` set in Production |
+| Secrets | Local: `.env.local` (git-ignored). Vercel: stored as sensitive variables. |
+
 ## How it fits together
 
 ```
